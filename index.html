@@ -4,627 +4,769 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Bia · Conecte.dgt</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{
-  background:#04070E;
-  height:100dvh;width:100vw;
-  overflow:hidden;
-  font-family:'Syne',sans-serif;
-  user-select:none;
-}
+html,body{width:100%;height:100%;overflow:hidden;background:#020810;font-family:'Inter',sans-serif}
 canvas{position:fixed;inset:0;width:100%;height:100%}
 
-/* SPLASH */
-#splash{
-  position:fixed;inset:0;z-index:999;
-  background:#04070E;
-  display:flex;flex-direction:column;
-  align-items:center;justify-content:center;gap:20px;
+/* HUD TOPO */
+.hud-top{
+  position:fixed;top:20px;left:50%;transform:translateX(-50%);
+  z-index:100;display:flex;align-items:center;gap:7px;
+  padding:6px 16px;
+  border-radius:20px;
+  background:rgba(10,20,50,0.4);
+  border:1px solid rgba(80,140,255,0.15);
+  backdrop-filter:blur(10px);
 }
-.s-av{
-  width:86px;height:86px;border-radius:22px;
-  background:linear-gradient(135deg,#2563EB,#1E40AF);
-  display:flex;align-items:center;justify-content:center;
-  font-size:36px;font-weight:800;color:#fff;
-  box-shadow:0 0 80px rgba(37,99,235,0.5);
-  animation:flt 3s ease-in-out infinite;
+.hud-dot{
+  width:6px;height:6px;border-radius:50%;
+  background:#4FC3F7;
+  box-shadow:0 0 8px #4FC3F7, 0 0 16px rgba(79,195,247,0.5);
+  animation:blink 2.5s ease-in-out infinite;
 }
-@keyframes flt{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
-.s-name{font-size:26px;font-weight:800;color:rgba(210,225,255,0.92)}
-.s-sub{font-size:10px;color:rgba(100,140,255,0.5);letter-spacing:3px;text-transform:uppercase}
-.s-btn{
-  margin-top:6px;padding:12px 32px;
-  background:rgba(37,99,235,0.12);border:1px solid rgba(37,99,235,0.3);
-  border-radius:30px;font-size:13px;font-family:'Syne',sans-serif;
-  color:rgba(140,180,255,0.8);letter-spacing:1px;cursor:pointer;
-  animation:pb 2.2s infinite;transition:all .2s;
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
+.hud-label{
+  font-size:10px;font-weight:600;letter-spacing:3px;
+  color:rgba(150,200,255,0.7);text-transform:uppercase;
 }
-.s-btn:hover{background:rgba(37,99,235,0.22);border-color:rgba(37,99,235,0.6)}
-@keyframes pb{0%,100%{box-shadow:0 0 0 0 rgba(37,99,235,0.3)}50%{box-shadow:0 0 0 12px rgba(37,99,235,0)}}
 
-/* CONFIG */
-#cfg{
-  position:fixed;inset:0;z-index:900;
-  background:rgba(4,7,14,0.97);backdrop-filter:blur(24px);
-  display:none;flex-direction:column;
-  align-items:center;padding:28px 20px 40px;overflow-y:auto;
-}
-#cfg.open{display:flex}
-.ch{width:100%;max-width:440px;display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
-.ch h2{font-size:16px;font-weight:800;color:rgba(210,225,255,0.9)}
-.cx{width:30px;height:30px;border-radius:50%;border:1px solid rgba(37,99,235,0.2);background:transparent;color:rgba(100,140,255,0.6);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s}
-.cx:hover{border-color:rgba(37,99,235,0.5);color:rgba(210,225,255,0.9)}
-.cs{width:100%;max-width:440px;margin-bottom:16px}
-.cl{display:block;font-size:10px;font-weight:700;color:rgba(80,120,255,0.5);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
-.ci{
-  width:100%;background:rgba(6,11,24,0.95);border:1px solid rgba(37,99,235,0.18);
-  border-radius:10px;padding:10px 13px;font-size:13px;
-  font-family:'Syne',sans-serif;color:rgba(210,225,255,0.85);outline:none;transition:.2s;
-}
-.ci:focus{border-color:rgba(37,99,235,0.45)}
-.ci::placeholder{color:rgba(60,100,200,0.3)}
-select.ci{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='rgba(80,130,255,0.4)' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 11px center}
-.cr{display:flex;gap:7px}
-.cr .ci{flex:1}
-.ct{flex-shrink:0;padding:10px 13px;background:rgba(37,99,235,0.12);border:1px solid rgba(37,99,235,0.22);border-radius:10px;font-size:12px;font-family:'Syne',sans-serif;color:rgba(120,170,255,0.75);cursor:pointer;white-space:nowrap;transition:.2s}
-.ct:hover{background:rgba(37,99,235,0.22)}
-.hint{font-size:10px;color:rgba(60,100,200,0.4);margin-top:4px;line-height:1.5}
-.hr{width:100%;max-width:440px;border:none;border-top:1px solid rgba(37,99,235,0.08);margin:2px 0 14px}
-.csave{
-  width:100%;max-width:440px;padding:13px;margin-top:4px;
-  background:linear-gradient(135deg,#1D4ED8,#1E40AF);border:none;
-  border-radius:11px;font-size:13px;font-weight:700;
-  font-family:'Syne',sans-serif;color:#fff;cursor:pointer;transition:.2s;
-}
-.csave:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(29,78,216,0.4)}
-
-/* HUD topo */
-.hud{
-  position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:50;
-  display:flex;align-items:center;gap:7px;
-  background:rgba(4,7,14,0.7);border:1px solid rgba(37,99,235,0.12);
-  border-radius:30px;padding:6px 14px;backdrop-filter:blur(14px);
-}
-.hd{width:6px;height:6px;background:#4ADE80;border-radius:50%;animation:bl 2.5s infinite}
-@keyframes bl{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(74,222,128,0.5)}50%{opacity:.7;box-shadow:0 0 0 5px rgba(74,222,128,0)}}
-.hl{font-size:10px;font-weight:700;color:rgba(100,140,255,0.55);letter-spacing:2px;text-transform:uppercase}
-
-.gear{
-  position:fixed;top:14px;right:14px;z-index:50;
+/* CONFIG GEAR */
+.gear-btn{
+  position:fixed;top:16px;right:16px;z-index:100;
   width:34px;height:34px;border-radius:50%;
-  border:1px solid rgba(37,99,235,0.12);background:rgba(4,7,14,0.7);
-  backdrop-filter:blur(12px);cursor:pointer;
-  display:flex;align-items:center;justify-content:center;transition:.2s;
-}
-.gear:hover{border-color:rgba(37,99,235,0.35)}
-.gear svg{width:14px;height:14px;stroke:rgba(100,140,255,0.5);fill:none;stroke-width:2}
-
-/* Status — único texto visível durante conversa */
-#status{
-  position:fixed;bottom:148px;left:50%;transform:translateX(-50%);
-  font-size:10px;font-weight:700;color:rgba(80,130,255,0.4);
-  letter-spacing:4px;text-transform:uppercase;
-  white-space:nowrap;z-index:10;pointer-events:none;transition:.4s;
-  text-align:center;
-}
-
-/* MIC */
-#mic{
-  position:fixed;bottom:48px;left:50%;transform:translateX(-50%);
-  width:64px;height:64px;border-radius:50%;
-  border:1.5px solid rgba(37,99,235,0.28);
-  background:rgba(4,7,14,0.8);backdrop-filter:blur(14px);
-  cursor:pointer;pointer-events:all;z-index:50;
+  background:rgba(10,20,50,0.5);
+  border:1px solid rgba(80,140,255,0.15);
+  backdrop-filter:blur(10px);
   display:flex;align-items:center;justify-content:center;
-  transition:all .3s;
+  cursor:pointer;transition:all .3s;
 }
-#mic:hover{border-color:rgba(37,99,235,0.55);transform:translateX(-50%) scale(1.04)}
-#mic.on{border-color:rgba(37,99,235,0.65);background:rgba(15,40,110,0.2);animation:ring 1.8s infinite}
-#mic.thinking{animation:spin 1.5s linear infinite}
-#mic.talking{border-color:rgba(74,222,128,0.55);animation:ring-g 1.8s infinite}
-@keyframes ring{0%{box-shadow:0 0 0 0 rgba(37,99,235,0.4)}70%{box-shadow:0 0 0 16px rgba(37,99,235,0)}100%{box-shadow:0 0 0 0 rgba(37,99,235,0)}}
-@keyframes ring-g{0%{box-shadow:0 0 0 0 rgba(74,222,128,0.38)}70%{box-shadow:0 0 0 14px rgba(74,222,128,0)}100%{box-shadow:0 0 0 0 rgba(74,222,128,0)}}
-@keyframes spin{from{box-shadow:4px 0 10px rgba(37,99,235,0.55)}25%{box-shadow:0 4px 10px rgba(37,99,235,0.55)}50%{box-shadow:-4px 0 10px rgba(37,99,235,0.55)}75%{box-shadow:0 -4px 10px rgba(37,99,235,0.55)}100%{box-shadow:4px 0 10px rgba(37,99,235,0.55)}}
-#mic svg{width:24px;height:24px}
+.gear-btn:hover{border-color:rgba(80,140,255,0.4);background:rgba(20,40,100,0.5)}
+.gear-btn svg{width:14px;height:14px;stroke:rgba(120,170,255,0.6);fill:none;stroke-width:2}
 
-/* Ações rodapé */
-.acts{
-  position:fixed;bottom:12px;left:50%;transform:translateX(-50%);
-  display:flex;align-items:center;gap:16px;z-index:50;
+/* BOTTOM UI */
+.bottom-ui{
+  position:fixed;bottom:0;left:0;right:0;
+  display:flex;flex-direction:column;align-items:center;
+  padding-bottom:32px;z-index:100;
+  pointer-events:none;
 }
-.act{
-  width:32px;height:32px;border-radius:50%;
-  border:1px solid rgba(37,99,235,0.12);background:rgba(4,7,14,0.65);
+
+#status-text{
+  font-size:11px;font-weight:400;
+  letter-spacing:5px;text-transform:uppercase;
+  color:rgba(120,170,255,0.5);
+  margin-bottom:6px;
+  transition:all .5s;
+}
+
+#sub-text{
+  font-size:9px;font-weight:300;
+  letter-spacing:3px;text-transform:uppercase;
+  color:rgba(80,130,255,0.3);
+  margin-bottom:28px;
+  transition:all .5s;
+  height:14px;
+}
+
+.controls{
+  display:flex;align-items:center;gap:18px;
+  pointer-events:all;
+}
+
+.ctrl-btn{
+  width:36px;height:36px;border-radius:50%;
+  background:rgba(10,20,50,0.5);
+  border:1px solid rgba(80,140,255,0.15);
+  backdrop-filter:blur(10px);
   display:flex;align-items:center;justify-content:center;
-  cursor:pointer;transition:.2s;backdrop-filter:blur(8px);
+  cursor:pointer;transition:all .3s;
 }
-.act:hover{border-color:rgba(37,99,235,0.35);background:rgba(20,50,130,0.1)}
-.act svg{width:13px;height:13px;stroke:rgba(100,140,255,0.5);fill:none;stroke-width:2}
+.ctrl-btn:hover{border-color:rgba(80,140,255,0.35);background:rgba(20,40,100,0.5)}
+.ctrl-btn svg{width:14px;height:14px;stroke:rgba(100,150,255,0.6);fill:none;stroke-width:1.8}
 
-/* Input texto */
-#ti{
-  position:fixed;bottom:120px;left:50%;transform:translateX(-50%);
-  width:min(360px,88vw);opacity:0;pointer-events:none;transition:.3s;z-index:50;
+.mic-btn{
+  width:56px;height:56px;border-radius:50%;
+  background:linear-gradient(135deg,rgba(30,80,200,0.8),rgba(20,60,160,0.9));
+  border:1px solid rgba(100,160,255,0.4);
+  box-shadow:0 0 20px rgba(50,100,255,0.25), inset 0 1px 0 rgba(255,255,255,0.1);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:all .3s;pointer-events:all;
 }
-#ti.show{opacity:1;pointer-events:all}
-.tii{
+.mic-btn:hover{box-shadow:0 0 30px rgba(50,100,255,0.4)}
+.mic-btn.listening{animation:mic-pulse 1.8s infinite}
+.mic-btn.thinking{animation:mic-spin 2s linear infinite}
+.mic-btn.speaking{background:linear-gradient(135deg,rgba(20,120,80,0.8),rgba(10,100,60,0.9));border-color:rgba(60,220,150,0.4)}
+.mic-btn svg{width:22px;height:22px;stroke:rgba(200,220,255,0.9);fill:none;stroke-width:1.8}
+
+@keyframes mic-pulse{
+  0%,100%{box-shadow:0 0 20px rgba(50,100,255,0.3)}
+  50%{box-shadow:0 0 40px rgba(50,100,255,0.6),0 0 60px rgba(50,100,255,0.2)}
+}
+@keyframes mic-spin{
+  0%{box-shadow:12px 0 20px rgba(50,100,255,0.5)}
+  25%{box-shadow:0 12px 20px rgba(50,100,255,0.5)}
+  50%{box-shadow:-12px 0 20px rgba(50,100,255,0.5)}
+  75%{box-shadow:0 -12px 20px rgba(50,100,255,0.5)}
+  100%{box-shadow:12px 0 20px rgba(50,100,255,0.5)}
+}
+
+/* CONFIG PANEL */
+#cfg-panel{
+  position:fixed;inset:0;z-index:200;
+  background:rgba(2,8,16,0.96);backdrop-filter:blur(24px);
+  display:none;flex-direction:column;align-items:center;
+  padding:32px 20px 40px;overflow-y:auto;
+}
+#cfg-panel.open{display:flex}
+.cfg-title{font-size:15px;font-weight:600;color:rgba(200,220,255,0.9);letter-spacing:1px;margin-bottom:24px}
+.cfg-close{position:absolute;top:20px;right:20px;width:30px;height:30px;border-radius:50%;border:1px solid rgba(80,140,255,0.2);background:transparent;color:rgba(120,170,255,0.6);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.cfg-sec{width:100%;max-width:420px;margin-bottom:16px}
+.cfg-lbl{display:block;font-size:9px;font-weight:600;color:rgba(80,130,255,0.5);letter-spacing:2.5px;text-transform:uppercase;margin-bottom:7px}
+.cfg-inp{width:100%;background:rgba(8,16,36,0.9);border:1px solid rgba(60,120,255,0.15);border-radius:8px;padding:10px 13px;font-size:13px;font-family:'Inter',sans-serif;color:rgba(200,220,255,0.85);outline:none;transition:.2s}
+.cfg-inp:focus{border-color:rgba(60,120,255,0.4)}
+.cfg-inp::placeholder{color:rgba(60,100,200,0.3)}
+select.cfg-inp{cursor:pointer;appearance:none}
+.cfg-row{display:flex;gap:8px}
+.cfg-row .cfg-inp{flex:1}
+.cfg-test{flex-shrink:0;padding:10px 13px;background:rgba(30,70,200,0.2);border:1px solid rgba(60,120,255,0.2);border-radius:8px;font-size:11px;font-family:'Inter',sans-serif;color:rgba(120,170,255,0.7);cursor:pointer;white-space:nowrap;transition:.2s}
+.cfg-test:hover{background:rgba(30,70,200,0.35)}
+.cfg-hr{width:100%;max-width:420px;border:none;border-top:1px solid rgba(60,120,255,0.08);margin:4px 0 14px}
+.cfg-hint{font-size:10px;color:rgba(60,100,200,0.4);margin-top:5px;line-height:1.5}
+.cfg-save{width:100%;max-width:420px;padding:12px;background:linear-gradient(135deg,rgba(30,80,200,0.9),rgba(20,60,160,0.9));border:none;border-radius:10px;font-size:13px;font-weight:600;font-family:'Inter',sans-serif;color:rgba(200,220,255,0.95);cursor:pointer;margin-top:6px;transition:.2s}
+.cfg-save:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(30,80,200,0.3)}
+
+/* TEXT INPUT */
+#text-input{
+  position:fixed;bottom:130px;left:50%;transform:translateX(-50%);
+  width:min(360px,86vw);opacity:0;pointer-events:none;
+  transition:.3s;z-index:100;
+}
+#text-input.show{opacity:1;pointer-events:all}
+.ti-wrap{
   display:flex;align-items:center;gap:7px;
-  background:rgba(4,7,14,0.93);border:1px solid rgba(37,99,235,0.2);
+  background:rgba(8,16,36,0.9);border:1px solid rgba(60,120,255,0.18);
   border-radius:30px;padding:7px 7px 7px 16px;backdrop-filter:blur(18px);
 }
-.tii input{flex:1;background:transparent;border:none;outline:none;color:rgba(210,225,255,0.88);font-family:'Syne',sans-serif;font-size:13px}
-.tii input::placeholder{color:rgba(60,100,200,0.3)}
-.ts{width:32px;height:32px;border-radius:50%;border:none;background:rgba(29,78,216,0.75);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s;flex-shrink:0}
-.ts:hover{background:#1D4ED8;transform:scale(1.06)}
-.ts svg{width:13px;height:13px;fill:#fff}
+.ti-wrap input{flex:1;background:transparent;border:none;outline:none;color:rgba(200,220,255,0.88);font-family:'Inter',sans-serif;font-size:13px}
+.ti-wrap input::placeholder{color:rgba(60,100,200,0.3)}
+.ti-send{width:30px;height:30px;border-radius:50%;border:none;background:rgba(30,80,200,0.8);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ti-send svg{width:12px;height:12px;fill:#fff}
 
-/* Toast */
+/* TOAST */
 #toast{
-  position:fixed;top:62px;left:50%;transform:translateX(-50%);
-  background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.25);
-  border-radius:9px;padding:8px 16px;font-size:11px;color:#6EE7B7;
-  z-index:999;opacity:0;transition:.3s;pointer-events:none;white-space:nowrap;
+  position:fixed;top:60px;left:50%;transform:translateX(-50%);
+  background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.22);
+  border-radius:8px;padding:8px 16px;font-size:11px;color:#6EE7B7;
+  z-index:300;opacity:0;transition:.3s;pointer-events:none;white-space:nowrap;
 }
 #toast.show{opacity:1}
 </style>
 </head>
 <body>
 
-<div id="splash">
-  <div class="s-av">B</div>
-  <div class="s-name">Bia</div>
-  <div class="s-sub">Assistente Pessoal · Conecte.dgt</div>
-  <div class="s-btn" id="startBtn">Toque para começar</div>
+<!-- HUD -->
+<div class="hud-top">
+  <div class="hud-dot"></div>
+  <span class="hud-label">Conecte.dgt</span>
 </div>
 
-<div id="cfg">
-  <div class="ch">
-    <h2>⚙️ Configurações</h2>
-    <div class="cx" onclick="closeCfg()">✕</div>
-  </div>
-  <div class="cs">
-    <label class="cl">Webhook N8N</label>
-    <input class="ci" id="cW" type="url" placeholder="https://n8nwebhook.n8nconecte.online/webhook/bia">
-  </div>
-  <div class="cs">
-    <label class="cl">Seu número WhatsApp</label>
-    <input class="ci" id="cN" type="text" placeholder="5538984126995">
-    <div class="hint">Com DDI — ex: 5538984126995</div>
-  </div>
-  <hr class="hr">
-  <div class="cs">
-    <label class="cl">ElevenLabs API Key</label>
-    <div class="cr">
-      <input class="ci" id="cK" type="password" placeholder="sua-api-key">
-      <button class="ct" onclick="testVoz()">▶ Testar</button>
+<div class="gear-btn" onclick="openCfg()">
+  <svg viewBox="0 0 24 24"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+</div>
+
+<!-- CANVAS -->
+<canvas id="c"></canvas>
+
+<!-- BOTTOM UI -->
+<div class="bottom-ui">
+  <div id="status-text">ESCUTANDO</div>
+  <div id="sub-text">DIGA "BIA..."</div>
+  <div class="controls">
+    <div class="ctrl-btn" onclick="toggleInput()" title="Teclado">
+      <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
     </div>
-    <div class="hint">elevenlabs.io → Profile → API Key</div>
+    <button class="mic-btn" id="micBtn" onclick="toggleMic()">
+      <svg viewBox="0 0 24 24">
+        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+        <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+        <line x1="12" y1="19" x2="12" y2="23"/>
+        <line x1="8" y1="23" x2="16" y2="23"/>
+      </svg>
+    </button>
+    <div class="ctrl-btn" onclick="enviarWhats()" title="WhatsApp">
+      <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+    </div>
   </div>
-  <div class="cs">
-    <label class="cl">Voz</label>
-    <select class="ci" id="cV">
-      <option value="21m00Tcm4TlvDq8ikWAM">Rachel — Feminina Natural (Recomendada)</option>
+</div>
+
+<!-- TEXT INPUT -->
+<div id="text-input">
+  <div class="ti-wrap">
+    <input type="text" id="tMsg" placeholder='Diga "Bia..." ou escreva aqui' onkeydown="if(event.key==='Enter')enviarTxt()">
+    <button class="ti-send" onclick="enviarTxt()"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
+  </div>
+</div>
+
+<!-- CONFIG PANEL -->
+<div id="cfg-panel">
+  <div class="cfg-title">Configurações</div>
+  <div class="cfg-close" onclick="closeCfg()">✕</div>
+  <div class="cfg-sec">
+    <label class="cfg-lbl">Webhook N8N</label>
+    <input class="cfg-inp" id="cW" type="url">
+  </div>
+  <div class="cfg-sec">
+    <label class="cfg-lbl">Seu número WhatsApp</label>
+    <input class="cfg-inp" id="cN" type="text">
+    <div class="cfg-hint">Com DDI — ex: 5538984126995</div>
+  </div>
+  <hr class="cfg-hr">
+  <div class="cfg-sec">
+    <label class="cfg-lbl">ElevenLabs API Key</label>
+    <div class="cfg-row">
+      <input class="cfg-inp" id="cK" type="password" placeholder="sua-api-key">
+      <button class="cfg-test" onclick="testVoz()">▶ Testar</button>
+    </div>
+    <div class="cfg-hint">elevenlabs.io → Profile → API Key</div>
+  </div>
+  <div class="cfg-sec">
+    <label class="cfg-lbl">Voz</label>
+    <select class="cfg-inp" id="cV">
+      <option value="21m00Tcm4TlvDq8ikWAM">Rachel — Feminina Natural</option>
       <option value="EXAVITQu4vr4xnSDxMaL">Bella — Feminina Suave</option>
       <option value="AZnzlk1XvdvUeBnXmlld">Domi — Feminina Energética</option>
       <option value="MF3mGyEYCl7XYWbV9V6O">Elli — Feminina Jovem</option>
       <option value="TxGEqnHWrfWFTfGW9XjX">Josh — Masculina</option>
     </select>
   </div>
-  <div class="cs">
-    <label class="cl">Palavra de ativação</label>
-    <input class="ci" id="cWW" type="text" placeholder="bia">
+  <div class="cfg-sec">
+    <label class="cfg-lbl">Palavra de ativação</label>
+    <input class="cfg-inp" id="cWW" type="text">
   </div>
-  <hr class="hr">
-  <button class="csave" onclick="salvar()">💾 Salvar</button>
-</div>
-
-<canvas id="c"></canvas>
-
-<div class="hud"><div class="hd"></div><span class="hl">Conecte.dgt</span></div>
-<div class="gear" onclick="openCfg()">
-  <svg viewBox="0 0 24 24"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-</div>
-
-<div id="status">TOQUE PARA COMEÇAR</div>
-
-<div id="ti">
-  <div class="tii">
-    <input type="text" id="tMsg" placeholder='Diga "Bia..." ou escreva' onkeydown="if(event.key==='Enter')enviarTxt()">
-    <button class="ts" onclick="enviarTxt()"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
-  </div>
-</div>
-
-<button id="mic" onclick="toggleMic()">
-  <svg viewBox="0 0 24 24" fill="none" stroke="rgba(100,150,255,0.75)" stroke-width="1.8">
-    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
-    <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-    <line x1="12" y1="19" x2="12" y2="23"/>
-    <line x1="8" y1="23" x2="16" y2="23"/>
-  </svg>
-</button>
-
-<div class="acts">
-  <div class="act" onclick="toggleTi()" title="Teclado">
-    <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-  </div>
-  <div style="width:64px"></div>
-  <div class="act" onclick="enviarWhats()" title="WhatsApp">
-    <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-  </div>
+  <hr class="cfg-hr">
+  <button class="cfg-save" onclick="salvar()">Salvar configurações</button>
 </div>
 
 <div id="toast"></div>
 
 <script>
 // ── CONFIG ────────────────────────────────────────────────────────────────────
-const D={
-  webhook:'https://n8nwebhook.n8nconecte.online/webhook/bia',
-  num:'5538984126995',
-  key:'d8736663d3070d98824e61dd2da611a237f385e9c4e39eccb9fd29d59602bb26',
-  voice:'21m00Tcm4TlvDq8ikWAM',
-  wake:'bia'
+const D = {
+  webhook: 'https://n8nwebhook.n8nconecte.online/webhook/bia',
+  num:     '5538984126995',
+  key:     'd8736663d3070d98824e61dd2da611a237f385e9c4e39eccb9fd29d59602bb26',
+  voice:   '21m00Tcm4TlvDq8ikWAM',
+  wake:    'bia'
 };
-let C=loadCfg();
-function loadCfg(){try{return{...D,...JSON.parse(localStorage.getItem('bia')||'{}')};}catch{return{...D};}}
-function salvar(){
-  C={
-    webhook:document.getElementById('cW').value||D.webhook,
-    num:document.getElementById('cN').value||D.num,
-    key:document.getElementById('cK').value||D.key,
-    voice:document.getElementById('cV').value||D.voice,
-    wake:document.getElementById('cWW').value||D.wake,
+
+let C = loadCfg();
+
+function loadCfg() {
+  try {
+    const s = JSON.parse(localStorage.getItem('bia') || '{}');
+    s.webhook = 'https://n8nwebhook.n8nconecte.online/webhook/bia';
+    return { ...D, ...s };
+  } catch { return { ...D }; }
+}
+
+function salvar() {
+  C = {
+    webhook: 'https://n8nwebhook.n8nconecte.online/webhook/bia',
+    num:     document.getElementById('cN').value  || D.num,
+    key:     document.getElementById('cK').value  || D.key,
+    voice:   document.getElementById('cV').value  || D.voice,
+    wake:    document.getElementById('cWW').value || D.wake,
   };
-  localStorage.setItem('bia',JSON.stringify(C));
-  if(rec){rec.stop();rec=null;}
-  closeCfg();toast('✓ Salvo!');
+  localStorage.setItem('bia', JSON.stringify(C));
+  if (rec) { rec.stop(); rec = null; }
+  closeCfg();
+  toast('✓ Configurações salvas!');
 }
-function openCfg(){
-  const c=loadCfg();
-  document.getElementById('cW').value=c.webhook;
-  document.getElementById('cN').value=c.num;
-  document.getElementById('cK').value=c.key;
-  document.getElementById('cV').value=c.voice;
-  document.getElementById('cWW').value=c.wake;
-  document.getElementById('cfg').classList.add('open');
+
+function openCfg() {
+  const c = loadCfg();
+  document.getElementById('cW').value  = c.webhook;
+  document.getElementById('cN').value  = c.num;
+  document.getElementById('cK').value  = c.key;
+  document.getElementById('cV').value  = c.voice;
+  document.getElementById('cWW').value = c.wake;
+  document.getElementById('cfg-panel').classList.add('open');
 }
-function closeCfg(){document.getElementById('cfg').classList.remove('open');}
+function closeCfg() { document.getElementById('cfg-panel').classList.remove('open'); }
 
-// ── AUDIO / ELEVENLABS ────────────────────────────────────────────────────────
-let actx=null,curSrc=null;
-// Analisador para pulso da esfera
-let analyser=null,dataArr=null,audioLevel=0;
+// ── PERLIN NOISE (simplex-like) ───────────────────────────────────────────────
+const P = (function() {
+  const perm = new Uint8Array(512);
+  const p = [151,160,137,91,90,15,131,13,201,95,96,53,194,233,7,225,140,36,103,30,
+    69,142,8,99,37,240,21,10,23,190,6,148,247,120,234,75,0,26,197,62,94,252,219,203,
+    117,35,11,32,57,177,33,88,237,149,56,87,174,20,125,136,171,168,68,175,74,165,71,
+    134,139,48,27,166,77,146,158,231,83,111,229,122,60,211,133,230,220,105,92,41,55,
+    46,245,40,244,102,143,54,65,25,63,161,1,216,80,73,209,76,132,187,208,89,18,169,
+    200,196,135,130,116,188,159,86,164,100,109,198,173,186,3,64,52,217,226,250,124,
+    123,5,202,38,147,118,126,255,82,85,212,207,206,59,227,47,16,58,17,182,189,28,42,
+    223,183,170,213,119,248,152,2,44,154,163,70,221,153,101,155,167,43,172,9,129,22,
+    39,253,19,98,108,110,79,113,224,232,178,185,112,104,218,246,97,228,251,34,242,
+    193,238,210,144,12,191,179,162,241,81,51,145,235,249,14,239,107,49,192,214,31,
+    181,199,106,157,184,84,204,176,115,121,50,45,127,4,150,254,138,236,205,93,222,
+    114,67,29,24,72,243,141,128,195,78,66,215,61,156,180];
+  for (let i = 0; i < 256; i++) perm[i] = perm[i+256] = p[i];
 
-function getActx(){
-  if(!actx||actx.state==='closed') actx=new(window.AudioContext||window.webkitAudioContext)();
-  if(actx.state==='suspended') actx.resume();
-  if(!analyser){
-    analyser=actx.createAnalyser();
-    analyser.fftSize=256;
-    dataArr=new Uint8Array(analyser.frequencyBinCount);
-    analyser.connect(actx.destination);
+  function fade(t) { return t*t*t*(t*(t*6-15)+10); }
+  function lerp(a,b,t) { return a+t*(b-a); }
+  function grad(h,x,y,z) {
+    const hh=h&15, u=hh<8?x:y, v=hh<4?y:hh===12||hh===14?x:z;
+    return ((hh&1)?-u:u)+((hh&2)?-v:v);
   }
-  return actx;
-}
-
-async function xi(text){
-  const r=await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${C.voice}`,{
-    method:'POST',
-    headers:{'xi-api-key':C.key,'Content-Type':'application/json','Accept':'audio/mpeg'},
-    body:JSON.stringify({text,model_id:'eleven_multilingual_v2',voice_settings:{stability:.42,similarity_boost:.8,style:.3,use_speaker_boost:true}})
-  });
-  if(!r.ok) throw new Error(`XI ${r.status}`);
-  const ab=await r.arrayBuffer();
-  const ctx=getActx();
-  const buf=await ctx.decodeAudioData(ab);
-  if(curSrc)try{curSrc.stop();}catch(e){}
-  return new Promise(res=>{
-    const s=ctx.createBufferSource();
-    s.buffer=buf;
-    // Conectar ao analyser para capturar nível de áudio
-    s.connect(analyser);
-    curSrc=s;
-    s.onended=res;
-    s.start(0);
-  });
-}
-
-async function fala(text){
-  setS('talking');
-  setStatus('FALANDO...');
-  try{
-    await xi(text);
-  }catch(e){
-    console.warn('XI:',e.message);
-    await fallback(text);
+  function noise(x,y,z=0) {
+    const X=Math.floor(x)&255, Y=Math.floor(y)&255, Z=Math.floor(z)&255;
+    x-=Math.floor(x); y-=Math.floor(y); z-=Math.floor(z);
+    const u=fade(x), v=fade(y), w=fade(z);
+    const A=perm[X]+Y, AA=perm[A]+Z, AB=perm[A+1]+Z;
+    const B=perm[X+1]+Y, BA=perm[B]+Z, BB=perm[B+1]+Z;
+    return lerp(
+      lerp(lerp(grad(perm[AA],x,y,z),grad(perm[BA],x-1,y,z),u),
+           lerp(grad(perm[AB],x,y-1,z),grad(perm[BB],x-1,y-1,z),u),v),
+      lerp(lerp(grad(perm[AA+1],x,y,z-1),grad(perm[BA+1],x-1,y,z-1),u),
+           lerp(grad(perm[AB+1],x,y-1,z-1),grad(perm[BB+1],x-1,y-1,z-1),u),v),w);
   }
-  audioLevel=0;
-  setS('on');
-  setStatus(`ESCUTANDO · DIGA "${C.wake.toUpperCase()}..."`);
+  return { noise };
+})();
+
+// ── CANVAS / PARTÍCULAS ───────────────────────────────────────────────────────
+const cv  = document.getElementById('c');
+const ctx = cv.getContext('2d');
+let W, H, CX, CY;
+let particles = [];
+let time = 0;
+let audioLevel = 0;  // 0..1 — nível de áudio real
+let targetAudio = 0;
+let agentState = 'idle'; // idle | listening | thinking | speaking
+
+// Parâmetros da orbe
+const NUM_PARTICLES  = 380;
+const BASE_RADIUS    = () => Math.min(W, H) * 0.28;
+const NOISE_SCALE    = 1.8;
+const NOISE_SPEED    = 0.0006;
+const CONNECTION_DIST = () => Math.min(W, H) * 0.095;
+
+function resize() {
+  W = cv.width  = window.innerWidth;
+  H = cv.height = window.innerHeight;
+  CX = W / 2; CY = H / 2;
+  buildParticles();
 }
 
-async function testVoz(){
-  const k=document.getElementById('cK').value;
-  const v=document.getElementById('cV').value;
-  if(!k){alert('Digite a API Key primeiro!');return;}
-  C={...C,key:k,voice:v};
-  try{await xi('Olá Martins, sou a Bia da Conecte!');toast('✓ Voz funcionando!');}
-  catch(e){toast('⚠ Erro: '+e.message);}
-}
-
-function fallback(text){
-  return new Promise(res=>{
-    if(!window.speechSynthesis){res();return;}
-    speechSynthesis.cancel();
-    setTimeout(()=>{
-      const u=new SpeechSynthesisUtterance(text);
-      u.lang='pt-BR';u.rate=.95;u.pitch=1.12;
-      const vs=speechSynthesis.getVoices();
-      const v=vs.find(v=>v.name==='Luciana')||vs.find(v=>v.lang==='pt-BR')||vs.find(v=>v.lang.startsWith('pt'));
-      if(v)u.voice=v;
-      u.onend=u.onerror=res;
-      speechSynthesis.speak(u);
-    },80);
-  });
-}
-
-// ── PARTÍCULAS ────────────────────────────────────────────────────────────────
-const cv=document.getElementById('c');
-const cx2=cv.getContext('2d');
-let W,H,CX,CY,pts=[],rotY=0,rotX=0,tarX=0;
-let nrg=.2,fr=0,br=0;
-
-// Estado da esfera
-let st='idle'; // idle | on | thinking | talking
-
-const NRG={idle:.2,on:.68,thinking:.48,talking:.75};
-
-function resize(){W=cv.width=innerWidth;H=cv.height=innerHeight;CX=W/2;CY=H/2;build();}
-
-function build(){
-  pts=[];
-  const N=Math.min(420,Math.floor(Math.min(W,H)*.68));
-  const R=Math.min(W,H)*.27;
-  const g=Math.PI*(3-Math.sqrt(5));
-  for(let i=0;i<N;i++){
-    const y=1-(i/(N-1))*2,r=Math.sqrt(1-y*y),th=g*i;
-    const ns=.08+Math.random()*.12,sd=Math.random()*Math.PI*2;
-    const rr=R*(1+ns*Math.sin(sd));
-    pts.push({bx:rr*r*Math.cos(th),by:rr*y,bz:rr*r*Math.sin(th),
-      sz:.25+Math.random()*1.2,sp:.00015+Math.random()*.0009,
-      ph:Math.random()*Math.PI*2,ns,sd,
-      h:210+Math.random()*30,s:50+Math.random()*25});
+function buildParticles() {
+  particles = [];
+  // Distribuição Fibonacci para cobertura uniforme
+  const phi = Math.PI * (3 - Math.sqrt(5));
+  for (let i = 0; i < NUM_PARTICLES; i++) {
+    const t = i / (NUM_PARTICLES - 1);
+    const inclination = Math.acos(1 - 2 * t);
+    const azimuth = phi * i;
+    particles.push({
+      // Posição base na esfera
+      bx: Math.sin(inclination) * Math.cos(azimuth),
+      by: Math.sin(inclination) * Math.sin(azimuth),
+      bz: Math.cos(inclination),
+      // Offset de ruído individual
+      ox: Math.random() * 100,
+      oy: Math.random() * 100,
+      oz: Math.random() * 100,
+      // Tamanho e brilho
+      size: 0.5 + Math.random() * 1.8,
+      bright: 0.4 + Math.random() * 0.6,
+      // Velocidade de rotação orbital
+      orbitSpeed: (Math.random() - 0.5) * 0.0004,
+      orbitPhase: Math.random() * Math.PI * 2,
+    });
   }
 }
 
-const ry=(x,z,a)=>({x:x*Math.cos(a)-z*Math.sin(a),z:x*Math.sin(a)+z*Math.cos(a)});
-const rx=(y,z,a)=>({y:y*Math.cos(a)-z*Math.sin(a),z:y*Math.sin(a)+z*Math.cos(a)});
-const proj=(x,y,z)=>{const f=Math.min(W,H)*1.28,s=f/(f+z+250);return{px:CX+x*s,py:CY+y*s,sc:s};};
+// Rotação global suave
+let rotY = 0, rotX = 0, targetRotX = 0;
 
-function getAudioLevel(){
-  if(!analyser||!dataArr||st!=='talking') return 0;
-  analyser.getByteFrequencyData(dataArr);
-  let sum=0;
-  for(let i=0;i<dataArr.length;i++) sum+=dataArr[i];
-  return sum/(dataArr.length*255);
+function rotateY(x, z, a) { return { x: x*Math.cos(a)-z*Math.sin(a), z: x*Math.sin(a)+z*Math.cos(a) }; }
+function rotateX(y, z, a) { return { y: y*Math.cos(a)-z*Math.sin(a), z: y*Math.sin(a)+z*Math.cos(a) }; }
+
+// Energia da orbe por estado
+const ENERGY = { idle: 0.18, listening: 0.65, thinking: 0.42, speaking: 0.85 };
+let energy = 0.18;
+
+function updateAudioPulse(intensity) {
+  targetAudio = Math.max(0, Math.min(1, intensity));
 }
 
-function drawFrame(){
+function drawFrame() {
   requestAnimationFrame(drawFrame);
-  fr++;br+=.007;
+  time += NOISE_SPEED;
 
-  // Nível de áudio real quando falando
-  const al=getAudioLevel();
-  if(st==='talking') audioLevel+=(al-audioLevel)*.25;
-  else audioLevel*=.92;
+  // Suavizar energia e áudio
+  const tgtE = (ENERGY[agentState] || 0.18) + audioLevel * 0.5;
+  energy += (tgtE - energy) * 0.04;
+  audioLevel += (targetAudio - audioLevel) * 0.2;
 
-  const tgt=(NRG[st]||.2)+(audioLevel*.6);
-  nrg+=(tgt-nrg)*.055;
+  // Rotação
+  rotX += (targetRotX - rotX) * 0.015;
+  const baseRotSpeed = 0.0009 + energy * 0.001;
+  rotY += baseRotSpeed;
 
-  rotX+=(tarX-rotX)*.016;
-  // Velocidade de rotação aumenta quando falando
-  const rotSpd=.0008+nrg*.0012+(audioLevel*.003);
-  rotY+=rotSpd;
+  ctx.clearRect(0, 0, W, H);
 
-  cx2.clearRect(0,0,W,H);
+  const R = BASE_RADIUS();
+  const C_DIST = CONNECTION_DIST();
+  const audioBoost = 1 + audioLevel * 0.45;
 
-  // Respiração — pulsa com o áudio quando falando
-  const pulse=st==='talking'?(1+Math.sin(br*6)*audioLevel*.18) : 1;
-  const b=(1+Math.sin(br)*.018*nrg)*pulse;
+  // Computar posições 2D
+  const pts = particles.map(p => {
+    // Ruído de Perlin para deformação orgânica
+    const nx = P.noise(p.ox + time * 0.7, p.oy, p.oz);
+    const ny = P.noise(p.ox, p.oy + time * 0.7, p.oz);
+    const nz = P.noise(p.ox, p.oy, p.oz + time * 0.7);
 
-  const mapped=pts.map(p=>{
-    const t=fr*p.sp+p.ph;
-    // Drift orgânico — mais intenso quando falando
-    const driftMult=st==='talking'?1+audioLevel*2:1;
-    let x=(p.bx+Math.sin(t+p.sd)*p.ns*4*nrg*driftMult)*b;
-    let y=(p.by+Math.cos(t*.7+p.sd)*p.ns*3*nrg*driftMult)*b;
-    let z=p.bz*b;
-    const r1=ry(x,z,rotY);x=r1.x;z=r1.z;
-    const r2=rx(y,z,rotX);y=r2.y;z=r2.z;
-    const {px,py,sc}=proj(x,y,z);
-    const d=(z+400)/800;
-    // Flicker intenso quando escutando, pulso quando falando
-    const fl=st==='on'?Math.sin(fr*.15+p.ph)*.18:
-              st==='talking'?Math.sin(fr*.4+p.ph)*audioLevel*.4:0;
-    const alp=Math.max(.03,Math.min(.9,d*.6+fl+nrg*.12));
-    const sz=Math.max(.25,sc*p.sz*(.6+nrg*.5+(audioLevel*.3)));
-    const h=p.h+(st==='thinking'?10:st==='talking'?-12:0);
-    return{px,py,alp,sz,h,s:p.s,l:54+d*24,d};
+    // Deformação proporcional ao estado
+    const deform = (0.08 + energy * 0.18 + audioLevel * 0.22) * NOISE_SCALE;
+    const r = R * (1 + deform * nx) * audioBoost;
+
+    let x = p.bx * r + ny * R * deform * 0.3;
+    let y = p.by * r + nz * R * deform * 0.3;
+    let z = p.bz * r + nx * R * deform * 0.3;
+
+    // Rotação global
+    const ry = rotateY(x, z, rotY); x = ry.x; z = ry.z;
+    const rx = rotateX(y, z, rotX); y = rx.y; z = rx.z;
+
+    // Projeção perspectiva
+    const fov = Math.min(W, H) * 1.4;
+    const sc  = fov / (fov + z + 200);
+    const px  = CX + x * sc;
+    const py  = CY + y * sc;
+
+    // Profundidade → opacidade e tamanho
+    const depth = (z + R * 1.5) / (R * 3);
+    const alpha = Math.max(0.05, Math.min(0.95, depth * 0.7 + energy * 0.15 + audioLevel * 0.2)) * p.bright;
+    const sz    = Math.max(0.3, sc * p.size * (0.7 + energy * 0.4 + audioLevel * 0.3));
+
+    return { px, py, alpha, sz, depth, z };
   });
 
-  mapped.sort((a,b)=>a.d-b.d);
+  // Ordenar por profundidade (pintor)
+  pts.sort((a, b) => a.z - b.z);
 
-  // Linhas orgânicas
-  const th=Math.min(W,H)*(.075+audioLevel*.02);
-  for(let i=0;i<mapped.length;i+=2){
-    for(let j=i+2;j<mapped.length;j+=2){
-      const dx=mapped[i].px-mapped[j].px,dy=mapped[i].py-mapped[j].py;
-      const dd=Math.sqrt(dx*dx+dy*dy);
-      if(dd<th){
-        const a=(1-dd/th)*(.065+audioLevel*.04)*nrg*mapped[i].d;
-        cx2.beginPath();
-        const mx=(mapped[i].px+mapped[j].px)/2,my=(mapped[i].py+mapped[j].py)/2;
-        cx2.moveTo(mapped[i].px,mapped[i].py);
-        cx2.quadraticCurveTo(mx,my,mapped[j].px,mapped[j].py);
-        cx2.strokeStyle=`hsla(${mapped[i].h},${mapped[i].s}%,68%,${a})`;
-        cx2.lineWidth=.3+audioLevel*.3;
-        cx2.stroke();
+  // Linhas de conexão
+  for (let i = 0; i < pts.length; i += 2) {
+    for (let j = i + 2; j < pts.length; j += 2) {
+      const dx = pts[i].px - pts[j].px;
+      const dy = pts[i].py - pts[j].py;
+      const d  = Math.sqrt(dx*dx + dy*dy);
+      if (d < C_DIST) {
+        const opacity = (1 - d/C_DIST) * 0.09 * energy * (pts[i].depth + pts[j].depth) / 2;
+        if (opacity < 0.005) continue;
+
+        // Cor das linhas varia com estado
+        const hue = agentState === 'speaking' ? 180 : agentState === 'thinking' ? 220 : 210;
+        ctx.beginPath();
+        ctx.strokeStyle = `hsla(${hue},80%,70%,${opacity + audioLevel * 0.04})`;
+        ctx.lineWidth   = 0.4 + audioLevel * 0.4;
+        ctx.moveTo(pts[i].px, pts[i].py);
+        ctx.lineTo(pts[j].px, pts[j].py);
+        ctx.stroke();
       }
     }
   }
 
   // Partículas
-  mapped.forEach(p=>{
-    const g=cx2.createRadialGradient(p.px,p.py,0,p.px,p.py,p.sz*2.2);
-    g.addColorStop(0,`hsla(${p.h},${p.s}%,${p.l}%,${p.alp})`);
-    g.addColorStop(.5,`hsla(${p.h},${p.s}%,${p.l}%,${p.alp*.28})`);
-    g.addColorStop(1,`hsla(${p.h},${p.s}%,${p.l}%,0)`);
-    cx2.beginPath();cx2.fillStyle=g;
-    cx2.arc(p.px,p.py,p.sz*2.2,0,Math.PI*2);cx2.fill();
+  pts.forEach(p => {
+    const hue = agentState === 'speaking' ? 185 : agentState === 'thinking' ? 215 : 205;
+    const sat = 70 + audioLevel * 20;
+    const lum = 70 + p.depth * 20;
+
+    // Glow
+    const gr = ctx.createRadialGradient(p.px, p.py, 0, p.px, p.py, p.sz * 3);
+    gr.addColorStop(0, `hsla(${hue},${sat}%,${lum}%,${p.alpha})`);
+    gr.addColorStop(0.4, `hsla(${hue},${sat}%,${lum}%,${p.alpha * 0.3})`);
+    gr.addColorStop(1,   `hsla(${hue},${sat}%,${lum}%,0)`);
+    ctx.beginPath();
+    ctx.fillStyle = gr;
+    ctx.arc(p.px, p.py, p.sz * 3, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Núcleo sólido
+    ctx.beginPath();
+    ctx.fillStyle = `hsla(${hue},${sat}%,${lum+15}%,${p.alpha * 0.9})`;
+    ctx.arc(p.px, p.py, p.sz * 0.8, 0, Math.PI * 2);
+    ctx.fill();
   });
 
   // Glow central — pulsa com o áudio
-  if(nrg>.28){
-    const gr=Math.min(W,H)*(.09+Math.sin(br)*.012+audioLevel*.08);
-    const gg=cx2.createRadialGradient(CX,CY,0,CX,CY,gr);
-    const glowA=(nrg-.28)*(.12+audioLevel*.2);
-    gg.addColorStop(0,`rgba(30,80,210,${glowA})`);
-    gg.addColorStop(1,'rgba(10,20,80,0)');
-    cx2.fillStyle=gg;cx2.fillRect(0,0,W,H);
+  const glowR = R * (0.35 + energy * 0.2 + audioLevel * 0.25);
+  const glow  = ctx.createRadialGradient(CX, CY, 0, CX, CY, glowR);
+  const glowA = (energy - 0.1) * 0.12 + audioLevel * 0.15;
+  glow.addColorStop(0,   `rgba(30,100,255,${Math.max(0, glowA)})`);
+  glow.addColorStop(0.5, `rgba(20,70,200,${Math.max(0, glowA * 0.4)})`);
+  glow.addColorStop(1,   `rgba(10,40,150,0)`);
+  ctx.fillStyle = glow;
+  ctx.fillRect(0, 0, W, H);
+}
+
+// Paralaxe
+document.addEventListener('mousemove', e => { targetRotX = (e.clientY/H - 0.5) * 0.35; });
+document.addEventListener('touchmove', e => { targetRotX = (e.touches[0].clientY/H - 0.5) * 0.25; }, { passive: true });
+
+// ── WEB AUDIO API — captura mic real para pulso ───────────────────────────────
+let micStream = null, micAnalyser = null, micData = null;
+
+async function startMicCapture() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    micStream = stream;
+    const actx2 = new (window.AudioContext || window.webkitAudioContext)();
+    const src   = actx2.createMediaStreamSource(stream);
+    micAnalyser = actx2.createAnalyser();
+    micAnalyser.fftSize = 256;
+    micData = new Uint8Array(micAnalyser.frequencyBinCount);
+    src.connect(micAnalyser);
+
+    // Loop de leitura
+    function readMic() {
+      if (!micAnalyser) return;
+      micAnalyser.getByteFrequencyData(micData);
+      let sum = 0;
+      for (let i = 0; i < micData.length; i++) sum += micData[i];
+      const level = sum / (micData.length * 255);
+      if (agentState === 'listening') updateAudioPulse(level * 3);
+      requestAnimationFrame(readMic);
+    }
+    readMic();
+  } catch(e) {
+    console.warn('Mic capture:', e.message);
   }
 }
 
-document.addEventListener('mousemove',e=>{tarX=(e.clientY/H-.5)*.28;});
-document.addEventListener('touchmove',e=>{tarX=(e.touches[0].clientY/H-.5)*.2;},{passive:true});
+// ── ELEVENLABS ────────────────────────────────────────────────────────────────
+let actx = null, curSrc = null, xiAnalyser = null, xiData = null;
 
-// ── VOZ / RECONHECIMENTO ──────────────────────────────────────────────────────
-let rec=null,lis=false,last='',tOpen=false;
-
-const micEl=document.getElementById('mic');
-const statEl=document.getElementById('status');
-const toastEl=document.getElementById('toast');
-
-function setS(s){
-  st=s;
-  micEl.className='';
-  if(s==='on')micEl.classList.add('on');
-  else if(s==='thinking')micEl.classList.add('thinking');
-  else if(s==='talking')micEl.classList.add('talking');
+function getActx() {
+  if (!actx || actx.state === 'closed')
+    actx = new (window.AudioContext || window.webkitAudioContext)();
+  if (actx.state === 'suspended') actx.resume();
+  // Analyser para áudio da Bia
+  if (!xiAnalyser) {
+    xiAnalyser = actx.createAnalyser();
+    xiAnalyser.fftSize = 256;
+    xiData = new Uint8Array(xiAnalyser.frequencyBinCount);
+    xiAnalyser.connect(actx.destination);
+    // Loop de leitura do áudio da Bia
+    (function readXi() {
+      if (!xiAnalyser) return;
+      xiAnalyser.getByteFrequencyData(xiData);
+      let sum = 0;
+      for (let i = 0; i < xiData.length; i++) sum += xiData[i];
+      const level = sum / (xiData.length * 255);
+      if (agentState === 'speaking') updateAudioPulse(level * 2.5);
+      requestAnimationFrame(readXi);
+    })();
+  }
+  return actx;
 }
-function setStatus(t){statEl.textContent=t;}
-function toast(m,ms=3000){
-  toastEl.textContent=m;toastEl.classList.add('show');
-  setTimeout(()=>toastEl.classList.remove('show'),ms);
+
+async function xi(text) {
+  const r = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${C.voice}`, {
+    method: 'POST',
+    headers: { 'xi-api-key': C.key, 'Content-Type': 'application/json', 'Accept': 'audio/mpeg' },
+    body: JSON.stringify({
+      text,
+      model_id: 'eleven_multilingual_v2',
+      voice_settings: { stability: .42, similarity_boost: .8, style: .28, use_speaker_boost: true }
+    })
+  });
+  if (!r.ok) throw new Error(`XI ${r.status}`);
+  const ab  = await r.arrayBuffer();
+  const ctx2 = getActx();
+  const buf  = await ctx2.decodeAudioData(ab);
+  if (curSrc) try { curSrc.stop(); } catch(e) {}
+  return new Promise(res => {
+    const s = ctx2.createBufferSource();
+    s.buffer = buf;
+    s.connect(xiAnalyser);
+    curSrc = s;
+    s.onended = res;
+    s.start(0);
+  });
 }
 
-function initRec(){
-  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(!SR)return null;
-  const r=new SR();
-  r.lang='pt-BR';r.continuous=true;r.interimResults=true;
-  r.onresult=e=>{
-    const t=Array.from(e.results).map(x=>x[0].transcript).join('').toLowerCase().trim();
-    if(e.results[e.results.length-1].isFinal&&t.includes(C.wake.toLowerCase())){
-      const msg=t.replace(new RegExp(C.wake+'[,.]?\\s*','i'),'').trim();
-      if(msg.length>1){setS('thinking');setStatus('PROCESSANDO...');enviarBia(msg);}
-      else setStatus('SIM? PODE FALAR...');
+async function fala(text) {
+  setState('speaking');
+  setStatus('FALANDO', '');
+  updateAudioPulse(0);
+  try {
+    await xi(text);
+  } catch(e) {
+    console.warn('XI:', e.message);
+    await fallback(text);
+  }
+  updateAudioPulse(0);
+  setState('listening');
+  setStatus('ESCUTANDO', `DIGA "${C.wake.toUpperCase()}..."`);
+}
+
+async function testVoz() {
+  const k = document.getElementById('cK').value;
+  const v = document.getElementById('cV').value;
+  if (!k) { alert('Digite a API Key primeiro!'); return; }
+  C = { ...C, key: k, voice: v };
+  try {
+    await xi('Olá Martins! Sou a Bia da Conecte.');
+    toast('✓ Voz ElevenLabs funcionando!');
+  } catch(e) { toast('⚠ Erro: ' + e.message); }
+}
+
+function fallback(text) {
+  return new Promise(res => {
+    if (!window.speechSynthesis) { res(); return; }
+    speechSynthesis.cancel();
+    setTimeout(() => {
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = 'pt-BR'; u.rate = .95; u.pitch = 1.1;
+      const vs = speechSynthesis.getVoices();
+      const v = vs.find(v=>v.name==='Luciana')||vs.find(v=>v.lang==='pt-BR')||vs.find(v=>v.lang.startsWith('pt'));
+      if (v) u.voice = v;
+      u.onend = u.onerror = res;
+      speechSynthesis.speak(u);
+    }, 80);
+  });
+}
+
+// ── RECONHECIMENTO DE VOZ ─────────────────────────────────────────────────────
+let rec = null, lis = false, last = '', tOpen = false;
+
+function initRec() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) return null;
+  const r = new SR();
+  r.lang = 'pt-BR'; r.continuous = true; r.interimResults = true;
+  r.onresult = e => {
+    const t = Array.from(e.results).map(x => x[0].transcript).join('').toLowerCase().trim();
+    if (e.results[e.results.length-1].isFinal && t.includes(C.wake.toLowerCase())) {
+      const msg = t.replace(new RegExp(C.wake + '[,.]?\\s*', 'i'), '').trim();
+      if (msg.length > 1) { setState('thinking'); setStatus('PROCESSANDO', ''); enviarBia(msg); }
+      else setStatus('ESCUTANDO', 'SIM? PODE FALAR...');
     }
   };
-  r.onerror=e=>{if(e.error!=='no-speech')setStatus(`ESCUTANDO · DIGA "${C.wake.toUpperCase()}..."`);};
-  r.onend=()=>{if(lis){setTimeout(()=>{try{r.start();}catch(e){}},300);}};
+  r.onerror = e => { if (e.error !== 'no-speech') setStatus('ESCUTANDO', `DIGA "${C.wake.toUpperCase()}..."`); };
+  r.onend = () => { if (lis) setTimeout(() => { try { r.start(); } catch(e) {} }, 300); };
   return r;
 }
 
-function startLis(){
-  if(!rec)rec=initRec();
-  if(!rec){toast('Sem suporte a voz — use o teclado');toggleTi();return;}
-  lis=true;setS('on');
-  setStatus(`ESCUTANDO · DIGA "${C.wake.toUpperCase()}..."`);
-  try{rec.start();}catch(e){}
+function startLis() {
+  if (!rec) rec = initRec();
+  if (!rec) { toast('Sem suporte a voz — use o teclado'); toggleInput(); return; }
+  lis = true;
+  setState('listening');
+  setStatus('ESCUTANDO', `DIGA "${C.wake.toUpperCase()}..."`);
+  try { rec.start(); } catch(e) {}
+  startMicCapture();
 }
 
-function stopLis(){
-  lis=false;setS('idle');setStatus('PAUSADO · TOQUE PARA RETOMAR');
-  if(rec)rec.stop();
+function stopLis() {
+  lis = false;
+  setState('idle');
+  setStatus('PAUSADO', 'TOQUE PARA RETOMAR');
+  updateAudioPulse(0);
+  if (rec) rec.stop();
 }
 
-function toggleMic(){lis?stopLis():startLis();}
+function toggleMic() { lis ? stopLis() : startLis(); }
 
-// Keep-alive
-setInterval(()=>{if(lis&&st==='on'){try{rec.stop();}catch(e){}}},20000);
+setInterval(() => { if (lis && agentState === 'listening') { try { rec.stop(); } catch(e) {} } }, 20000);
 
 // ── API ───────────────────────────────────────────────────────────────────────
-async function enviarBia(msg){
-  try{
-    const r=await fetch(C.webhook,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({message:msg,from:C.num})
+async function enviarBia(msg) {
+  try {
+    const r = await fetch(C.webhook, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: msg, from: C.num })
     });
-    if(!r.ok)throw new Error(`HTTP ${r.status}`);
-    const d=await r.json();
-    const rep=d.response||'Não consegui processar.';
-    last=rep;
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const d   = await r.json();
+    const rep = d.response || 'Não consegui processar.';
+    last = rep;
     await fala(rep);
-  }catch(e){
-    await fala('Tive um problema de conexão. Verifique se o workflow está ativo no N8N.');
+  } catch(e) {
+    await fala('Tive um problema de conexão. Verifique se o workflow está ativo.');
   }
 }
 
-async function enviarWhats(){
-  if(!last){toast('Nenhuma resposta para enviar');return;}
-  try{
-    await fetch(C.webhook,{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({message:`Bia, me manda no WhatsApp: "${last}"`,from:C.num})
+async function enviarWhats() {
+  if (!last) { toast('Nenhuma resposta para enviar'); return; }
+  try {
+    await fetch(C.webhook, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: `Bia, me manda no WhatsApp: "${last}"`, from: C.num })
     });
     toast('✓ Enviado para o WhatsApp!');
-  }catch{toast('Erro ao enviar');}
+  } catch { toast('Erro ao enviar'); }
 }
 
-function toggleTi(){
-  tOpen=!tOpen;
-  document.getElementById('ti').classList.toggle('show',tOpen);
-  if(tOpen)setTimeout(()=>document.getElementById('tMsg').focus(),100);
+// ── UI ────────────────────────────────────────────────────────────────────────
+const micBtn = document.getElementById('micBtn');
+
+function setState(s) {
+  agentState = s;
+  micBtn.className = 'mic-btn';
+  if (s === 'listening') micBtn.classList.add('listening');
+  else if (s === 'thinking') micBtn.classList.add('thinking');
+  else if (s === 'speaking') micBtn.classList.add('speaking');
 }
 
-function enviarTxt(){
-  const m=document.getElementById('tMsg').value.trim();
-  if(!m)return;
-  document.getElementById('tMsg').value='';
-  setS('thinking');setStatus('PROCESSANDO...');
+function setStatus(main, sub) {
+  document.getElementById('status-text').textContent = main;
+  document.getElementById('sub-text').textContent    = sub || '';
+}
+
+function toast(m, ms = 3000) {
+  const el = document.getElementById('toast');
+  el.textContent = m; el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), ms);
+}
+
+function toggleInput() {
+  tOpen = !tOpen;
+  document.getElementById('text-input').classList.toggle('show', tOpen);
+  if (tOpen) setTimeout(() => document.getElementById('tMsg').focus(), 100);
+}
+
+function enviarTxt() {
+  const m = document.getElementById('tMsg').value.trim();
+  if (!m) return;
+  document.getElementById('tMsg').value = '';
+  setState('thinking'); setStatus('PROCESSANDO', '');
   enviarBia(m);
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
-async function start(){
-  try{
-    const t=new(window.AudioContext||window.webkitAudioContext)();
-    const b=t.createBuffer(1,1,22050),s=t.createBufferSource();
-    s.buffer=b;s.connect(t.destination);s.start(0);await t.resume();
-    // Inicializar o analyser desde já
-    actx=t;
-    analyser=actx.createAnalyser();
-    analyser.fftSize=256;
-    dataArr=new Uint8Array(analyser.frequencyBinCount);
-    analyser.connect(actx.destination);
-  }catch(e){}
-
-  const sp=document.getElementById('splash');
-  sp.style.transition='opacity .7s';sp.style.opacity='0';
-  setTimeout(()=>sp.style.display='none',700);
-
-  C=loadCfg();
-  if(window.speechSynthesis){speechSynthesis.getVoices();speechSynthesis.addEventListener('voiceschanged',()=>speechSynthesis.getVoices());}
-  startLis();
-}
-
-document.getElementById('startBtn').addEventListener('click',start);
-document.getElementById('splash').addEventListener('click',start);
-window.addEventListener('resize',resize);
+window.addEventListener('resize', resize);
 resize();
 drawFrame();
+
+// Desbloquear AudioContext e iniciar
+document.addEventListener('click', async function init() {
+  document.removeEventListener('click', init);
+  try {
+    const t = new (window.AudioContext || window.webkitAudioContext)();
+    await t.resume();
+  } catch(e) {}
+  if (window.speechSynthesis) {
+    speechSynthesis.getVoices();
+    speechSynthesis.addEventListener('voiceschanged', () => speechSynthesis.getVoices());
+  }
+  startLis();
+}, { once: true });
+
+// Auto-iniciar no primeiro toque/clique na tela
 </script>
 </body>
 </html>
