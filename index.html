@@ -4,6 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Bia · Conecte.dgt</title>
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#F0EEE8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Bia">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="apple-touch-startup-image" href="icon-512.png">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -536,13 +545,20 @@ async function xi(text){
 }
 
 async function fala(text){
-  setState('speaking');setStatus('FALANDO','');
+  // Garantir que AudioContext está desbloqueado no iOS antes de falar
+  await unlockAudio();
+  setState('speaking'); setStatus('FALANDO', '');
   updateAudioPulse(0);
-  try{await xi(text);}
-  catch(e){console.warn('XI:',e.message);await fallback(text);}
+  // Parar reconhecimento enquanto fala (evita eco no iOS)
+  recActive = false;
+  try { if (rec) rec.abort(); } catch(e) {}
+  try { await xi(text); }
+  catch(e) { console.warn('XI:', e.message); await fallback(text); }
   updateAudioPulse(0);
+  // Retomar escuta
   setState('listening');
-  setStatus('ESCUTANDO',`DIGA "${C.wake.toUpperCase()}..."`);
+  setStatus('ESCUTANDO', `DIGA "${C.wake.toUpperCase()}..."`);
+  if (lis) setTimeout(() => safeStart(), 500);
 }
 
 async function testVoz(){
@@ -611,7 +627,8 @@ function initRec(){
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   if(!SR)return null;
   const r=new SR();
-  r.lang='pt-BR';r.continuous=true;r.interimResults=true;
+  r.lang='pt-BR';r.continuous=false;
+  r.interimResults=false;
   r.onresult=e=>{
     const t=Array.from(e.results).map(x=>x[0].transcript).join('').toLowerCase().trim();
     if(e.results[e.results.length-1].isFinal&&t.includes(C.wake.toLowerCase())){
@@ -679,32 +696,71 @@ function enviarTxt(){
   setState('thinking');setStatus('PROCESSANDO','');enviarBia(m);
 }
 
+// ── PWA — REGISTRAR SERVICE WORKER ──────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/bia-conecte/sw.js')
+      .then(() => console.log('✅ SW registrado'))
+      .catch(e => console.warn('SW:', e));
+  });
+}
+
 // ── INIT ──────────────────────────────────────────────────────────────────────
 window.addEventListener('resize',resize);
 resize();draw();
 
-document.addEventListener('click',async function init(){
-  document.removeEventListener('click',init);
-  try{
-    actx=new(window.AudioContext||window.webkitAudioContext)();
+// ── iOS AUDIO UNLOCK ─────────────────────────────────────────────────────────
+// iOS precisa de toque para liberar AudioContext
+let audioUnlocked = false;
+
+async function unlockAudio() {
+  if (audioUnlocked) return;
+  try {
+    actx = new (window.AudioContext || window.webkitAudioContext)();
+    // Tocar silêncio para desbloquear
+    const buf = actx.createBuffer(1, 1, 22050);
+    const src = actx.createBufferSource();
+    src.buffer = buf;
+    src.connect(actx.destination);
+    src.start(0);
     await actx.resume();
-    xiAn=actx.createAnalyser();xiAn.fftSize=256;
-    xiData=new Uint8Array(xiAn.frequencyBinCount);
+
+    xiAn = actx.createAnalyser(); xiAn.fftSize = 256;
+    xiData = new Uint8Array(xiAn.frequencyBinCount);
     xiAn.connect(actx.destination);
-    (function readXi(){
-      if(!xiAn)return;
+
+    (function readXi() {
+      if (!xiAn) return;
       xiAn.getByteFrequencyData(xiData);
-      let s=0;for(let i=0;i<xiData.length;i++)s+=xiData[i];
-      if(agentState==='speaking')updateAudioPulse(s/(xiData.length*255)*2.8);
+      let s = 0; for (let i = 0; i < xiData.length; i++) s += xiData[i];
+      if (agentState === 'speaking') updateAudioPulse(s / (xiData.length * 255) * 2.8);
       requestAnimationFrame(readXi);
     })();
-  }catch(e){}
-  if(window.speechSynthesis){
+
+    audioUnlocked = true;
+  } catch(e) { console.warn('AudioContext:', e); }
+}
+
+// Primeiro toque desbloqueia áudio E inicia escuta
+document.addEventListener('click', async function init() {
+  document.removeEventListener('click', init);
+  await unlockAudio();
+  if (window.speechSynthesis) {
     speechSynthesis.getVoices();
-    speechSynthesis.addEventListener('voiceschanged',()=>speechSynthesis.getVoices());
+    speechSynthesis.addEventListener('voiceschanged', () => speechSynthesis.getVoices());
   }
   startLis();
-},{once:true});
+}, { once: true });
+
+document.addEventListener('touchstart', async function initTouch() {
+  document.removeEventListener('touchstart', initTouch);
+  await unlockAudio();
+  if (window.speechSynthesis) {
+    speechSynthesis.getVoices();
+    speechSynthesis.addEventListener('voiceschanged', () => speechSynthesis.getVoices());
+  }
+  startLis();
+}, { once: true });
 </script>
 </body>
 </html>
