@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><title>Gerar Ícones Bia</title></head>
+<body style="background:#F0EEE8;display:flex;flex-direction:column;align-items:center;gap:20px;padding:40px;font-family:sans-serif">
+<h2 style="color:#1a3a9e">Clique nos botões para baixar os ícones da Bia</h2>
+
+<canvas id="c192" width="192" height="192" style="border-radius:44px;box-shadow:0 4px 20px rgba(0,0,0,0.15)"></canvas>
+<button onclick="download(192)" style="padding:10px 24px;background:#1a3a9e;color:white;border:none;border-radius:8px;cursor:pointer;font-size:14px">⬇ Baixar icon-192.png</button>
+
+<canvas id="c512" width="512" height="512" style="width:192px;height:192px;border-radius:44px;box-shadow:0 4px 20px rgba(0,0,0,0.15)"></canvas>
+<button onclick="download(512)" style="padding:10px 24px;background:#1a3a9e;color:white;border:none;border-radius:8px;cursor:pointer;font-size:14px">⬇ Baixar icon-512.png</button>
+
+<script>
+function drawIcon(size) {
+  const cv = document.getElementById('c'+size);
+  const ctx = cv.getContext('2d');
+  const s = size;
+
+  // Fundo off-white
+  ctx.fillStyle = '#F0EEE8';
+  ctx.fillRect(0, 0, s, s);
+
+  // Gradiente de fundo circular suave
+  const bg = ctx.createRadialGradient(s/2, s/2, 0, s/2, s/2, s*0.6);
+  bg.addColorStop(0, 'rgba(200,220,255,0.3)');
+  bg.addColorStop(1, 'rgba(200,220,255,0)');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, s, s);
+
+  // Orbe de partículas — desenho simplificado
+  const cx = s/2, cy = s/2, R = s*0.32;
+
+  // Neblina interna azul
+  const nebula = ctx.createRadialGradient(cx, cy, 0, cx, cy, R*0.9);
+  nebula.addColorStop(0, 'rgba(80,140,255,0.25)');
+  nebula.addColorStop(0.5, 'rgba(60,110,230,0.12)');
+  nebula.addColorStop(1, 'rgba(40,80,200,0)');
+  ctx.fillStyle = nebula;
+  ctx.fillRect(0, 0, s, s);
+
+  // Partículas — distribuição fibonacci simplificada
+  const phi = Math.PI * (3 - Math.sqrt(5));
+  const N = 80;
+  for (let i = 0; i < N; i++) {
+    const t = i / (N - 1);
+    const inc = Math.acos(1 - 2 * t);
+    const az = phi * i;
+    // Projeto ortográfica simples
+    const x = cx + Math.sin(inc) * Math.cos(az) * R * (0.85 + Math.random() * 0.25);
+    const y = cy + Math.sin(inc) * Math.sin(az) * R * (0.85 + Math.random() * 0.25);
+    const depth = (Math.cos(inc) + 1) / 2;
+    const alpha = 0.4 + depth * 0.6;
+    const sz = (0.8 + depth * 1.4) * (s / 192);
+
+    // Glow azul
+    const g = ctx.createRadialGradient(x, y, 0, x, y, sz * 4);
+    g.addColorStop(0, `rgba(50,100,220,${alpha * 0.3})`);
+    g.addColorStop(1, 'rgba(50,100,220,0)');
+    ctx.beginPath(); ctx.fillStyle = g;
+    ctx.arc(x, y, sz * 4, 0, Math.PI * 2); ctx.fill();
+
+    // Núcleo preto
+    ctx.beginPath();
+    ctx.fillStyle = `rgba(15,15,25,${alpha * 0.9})`;
+    ctx.arc(x, y, sz, 0, Math.PI * 2); ctx.fill();
+  }
+
+  // Linhas de conexão
+  const pts = [];
+  for (let i = 0; i < N; i++) {
+    const t = i / (N - 1);
+    const inc = Math.acos(1 - 2 * t);
+    const az = phi * i;
+    pts.push({
+      x: cx + Math.sin(inc) * Math.cos(az) * R,
+      y: cy + Math.sin(inc) * Math.sin(az) * R,
+      d: (Math.cos(inc) + 1) / 2
+    });
+  }
+  const CDIST = R * 0.45;
+  for (let i = 0; i < pts.length; i += 3) {
+    for (let j = i + 3; j < pts.length; j += 3) {
+      const dx = pts[i].x - pts[j].x, dy = pts[i].y - pts[j].y;
+      const d = Math.sqrt(dx*dx + dy*dy);
+      if (d < CDIST) {
+        const a = (1 - d/CDIST) * 0.15 * pts[i].d;
+        ctx.beginPath();
+        ctx.strokeStyle = `rgba(15,15,25,${a})`;
+        ctx.lineWidth = 0.5 * (s/192);
+        ctx.moveTo(pts[i].x, pts[i].y);
+        ctx.lineTo(pts[j].x, pts[j].y);
+        ctx.stroke();
+      }
+    }
+  }
+
+  // Anel exterior
+  ctx.beginPath();
+  ctx.strokeStyle = 'rgba(30,30,40,0.18)';
+  ctx.lineWidth = 1.2 * (s/192);
+  ctx.arc(cx, cy, R * 1.06, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // "B" central sutil
+  ctx.font = `bold ${s*0.22}px 'Inter',sans-serif`;
+  ctx.fillStyle = 'rgba(20,50,180,0.08)';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('B', cx, cy);
+}
+
+function download(size) {
+  const cv = document.getElementById('c'+size);
+  const a = document.createElement('a');
+  a.download = `icon-${size}.png`;
+  a.href = cv.toDataURL('image/png');
+  a.click();
+}
+
+drawIcon(192);
+drawIcon(512);
+</script>
+</body>
+</html>
